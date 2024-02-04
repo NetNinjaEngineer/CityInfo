@@ -27,8 +27,8 @@ public class AuthService : IAuthService
     public async Task<AuthModel> LoginAsync(TokenRequestModel tokenRequestModel)
     {
         var authModelToReturn = new AuthModel();
-        var user = await _userManager.FindByEmailAsync(tokenRequestModel.Email);
-        if (user is null || !await _userManager.CheckPasswordAsync(user, tokenRequestModel.Password))
+        var user = await _userManager.FindByEmailAsync(tokenRequestModel.Email!);
+        if (user is null || !await _userManager.CheckPasswordAsync(user, tokenRequestModel.Password!))
         {
             authModelToReturn.Message = "Email or Password are incorrect";
             return authModelToReturn;
@@ -38,7 +38,7 @@ public class AuthService : IAuthService
         var userRoles = await _userManager.GetRolesAsync(user);
 
         authModelToReturn.IsAuthenticated = true;
-        authModelToReturn.Roles = userRoles.ToList();
+        authModelToReturn.Roles = [.. userRoles];
         authModelToReturn.ExpiresOn = securityJwtToken.ValidTo;
         authModelToReturn.Token = new JwtSecurityTokenHandler().WriteToken(securityJwtToken);
 
@@ -54,10 +54,10 @@ public class AuthService : IAuthService
 
     public async Task<AuthModel> RegisterAsync(RegisterModel requestModel)
     {
-        if (await _userManager.FindByEmailAsync(requestModel.Email) is not null)
+        if (await _userManager.FindByEmailAsync(requestModel.Email!) is not null)
             return new AuthModel { Message = "Email is already registered!" };
 
-        if (await _userManager.FindByNameAsync(requestModel.Username) is not null)
+        if (await _userManager.FindByNameAsync(requestModel.Username!) is not null)
             return new AuthModel { Message = "Username is already registered !" };
 
         var user = new AppUser
@@ -68,7 +68,7 @@ public class AuthService : IAuthService
             LastName = requestModel.LastName
         };
 
-        var result = await _userManager.CreateAsync(user, requestModel.Password);
+        var result = await _userManager.CreateAsync(user, requestModel.Password!);
 
         if (!result.Succeeded)
         {
@@ -91,7 +91,7 @@ public class AuthService : IAuthService
             Email = user.Email,
             IsAuthenticated = true,
             ExpiresOn = jwtSecurityToken.ValidTo,
-            Roles = new List<string>() { "User" },
+            Roles = ["User"],
             Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
             UserName = user.UserName
         };
@@ -108,9 +108,9 @@ public class AuthService : IAuthService
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Sub, user.UserName!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim("uid", user.Id)
         }
             .Union(userClaims)

@@ -28,7 +28,7 @@ public class PointsOfInterestController : ControllerBase
 
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PointOfInterestDto), StatusCodes.Status200OK)]
     [HttpGet(Name = "GetPointsOfInterest")]
     public async Task<IActionResult> GetPointsOfInterest(int cityId)
     {
@@ -52,7 +52,7 @@ public class PointsOfInterestController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PointOfInterestDto), StatusCodes.Status200OK)]
     [HttpGet("{pointOfInterestId}", Name = "GetPointOfInterest")]
     public async Task<IActionResult> GetPointOfInterest(int cityId, int pointOfInterestId)
     {
@@ -177,7 +177,7 @@ public class PointsOfInterestController : ControllerBase
         return NoContent();
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PagedList<PointOfInterest>), StatusCodes.Status200OK)]
     [HttpGet]
     [Route("GetPointsOfInterestByParameters")]
     public IActionResult GetPointsOfInterest([FromQuery] PointOfInterestRequestParameters parameters)

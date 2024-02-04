@@ -30,6 +30,7 @@ public class CitiesController : ControllerBase
         _propertyCheckerService = propertyCheckerService;
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(City))]
     [ResponseCache(Duration = 120)]
     [HttpPost]
     [Route("CreateCityCollection")]
@@ -43,6 +44,7 @@ public class CitiesController : ControllerBase
         return Ok(cityCollectionEntities);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(City))]
     //[ResponseCache(Duration = 120)]
     [HttpGet(Name = "GetCitiesAsync")]
     [HttpHead]
@@ -66,6 +68,8 @@ public class CitiesController : ControllerBase
         return Ok(linkedResourceWithSelfLink);
     }
 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [ResponseCache(Duration = 120)]
     [HttpPost(Name = "CreateCity")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
@@ -92,7 +96,7 @@ public class CitiesController : ControllerBase
     /// <param name="fields">this parameter used to retrieve city by specified fields </param>
     /// <returns>a city with specified id and specified fields if you want.</returns>
 
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(City), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ResponseCache(Duration = 120)]
