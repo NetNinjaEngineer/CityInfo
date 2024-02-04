@@ -26,6 +26,9 @@ public class PointsOfInterestController : ControllerBase
         _mapper = mapper;
     }
 
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet(Name = "GetPointsOfInterest")]
     public async Task<IActionResult> GetPointsOfInterest(int cityId)
     {
@@ -48,6 +51,8 @@ public class PointsOfInterestController : ControllerBase
         }
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet("{pointOfInterestId}", Name = "GetPointOfInterest")]
     public async Task<IActionResult> GetPointOfInterest(int cityId, int pointOfInterestId)
     {
@@ -68,7 +73,9 @@ public class PointsOfInterestController : ControllerBase
         return Ok(pointOfInterestToReturn);
     }
 
-
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
     [HttpPost(Name = nameof(CreatePointOfInterest))]
     public async Task<IActionResult> CreatePointOfInterest(int cityId,
         [FromBody] PointOfInterestForCreationDto pointOfInterest)
@@ -96,7 +103,8 @@ public class PointsOfInterestController : ControllerBase
 
     }
 
-
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpPut("{pointOfInterestId}")]
     public async Task<IActionResult> UpdatePointOfInterest(int cityId,
         int pointOfInterestId, PointOfInterestForUpdateDto dto)
@@ -120,6 +128,9 @@ public class PointsOfInterestController : ControllerBase
         return NoContent();
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{pointOfInterestId}")]
     public async Task<IActionResult> PartiallyUpdatePointOfInterest(int cityId, int pointOfInterestId,
         JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
@@ -150,6 +161,8 @@ public class PointsOfInterestController : ControllerBase
 
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [HttpDelete("{pointOfInterestId}")]
     public async Task<IActionResult> DeletePointOfInterest(int cityId, int pointOfInterestId)
     {
@@ -164,6 +177,7 @@ public class PointsOfInterestController : ControllerBase
         return NoContent();
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet]
     [Route("GetPointsOfInterestByParameters")]
     public IActionResult GetPointsOfInterest([FromQuery] PointOfInterestRequestParameters parameters)
@@ -175,5 +189,5 @@ public class PointsOfInterestController : ControllerBase
 
     private async Task<bool> CheckCityExists(int cityId)
         => await _unitOfWork.CityRepository
-        .GetCityAsync(cityId, true) == null ? false : true;
+        .GetCityAsync(cityId, true) != null;
 }

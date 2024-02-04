@@ -20,8 +20,10 @@ public class PointOfInterestRepository(ApplicationDbContext context)
         => await FindAll(trackChanges).ToListAsync();
 
     public async Task<PointOfInterest> GetPointOfInterestAsync(int cityId, int pointOfInterestId, bool trackChanges)
-        => await FindByCondition(p => p.CityId == cityId && p.Id ==
-        pointOfInterestId, trackChanges).SingleOrDefaultAsync();
+    {
+        return await FindByCondition(p => p.CityId == cityId && p.Id ==
+            pointOfInterestId, trackChanges).SingleOrDefaultAsync();
+    }
 
     public PagedList<PointOfInterest> GetPointsOfInterest(PointOfInterestRequestParameters pointOfInterestParameters)
     {

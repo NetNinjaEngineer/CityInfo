@@ -85,6 +85,16 @@ public class CitiesController : ControllerBase
         return CreatedAtRoute("GetCity", new { CityId = (int)linkedResourceToReturn["Id"] }, linkedResourceToReturn);
     }
 
+    /// <summary>
+    /// Get an city by cityId and fields
+    /// </summary>
+    /// <param name="cityId">Id for city that you want to get.</param>
+    /// <param name="fields">this parameter used to retrieve city by specified fields </param>
+    /// <returns>a city with specified id and specified fields if you want.</returns>
+
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ResponseCache(Duration = 120)]
     [HttpGet("{cityId}", Name = "GetCity")]
     public async Task<IActionResult> GetCityAsync(int cityId, string? fields)
@@ -107,6 +117,7 @@ public class CitiesController : ControllerBase
     }
 
 
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ResponseCache(Duration = 120)]
     [HttpPut("{cityId}", Name = "UpdateCity")]
     [ServiceFilter(typeof(CityExistsFilterAttribute), Order = 2)]
@@ -121,6 +132,7 @@ public class CitiesController : ControllerBase
         return NoContent();
     }
 
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ResponseCache(Duration = 120)]
     [HttpDelete("{cityId}", Name = "DeleteCity")]
     [ServiceFilter(typeof(CityExistsFilterAttribute))]
@@ -133,6 +145,8 @@ public class CitiesController : ControllerBase
         return NoContent();
     }
 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ResponseCache(Duration = 120)]
     [HttpGet]
     [Route("GetCitiesByCityParamaters")]
@@ -177,7 +191,7 @@ public class CitiesController : ControllerBase
 
     private async Task<bool> CheckCityExists(int cityId)
       => await _unitOfWork.CityRepository
-      .GetCityAsync(cityId, true) == null ? false : true;
+      .GetCityAsync(cityId, true) != null;
 
     private string CreateCitiesResourceUri(CityRequestParameters cityRequestParameters,
         ResourceUriType resourceUriType)

@@ -21,7 +21,7 @@ public class FilesController : ControllerBase
             return NotFound();
 
         var fileBytes = System.IO.File.ReadAllBytes(pathToFile);
-        if (!_fileExtensionContentTypeProvider.TryGetContentType(pathToFile, out string contenyType))
+        if (!_fileExtensionContentTypeProvider.TryGetContentType(pathToFile, out string? contenyType))
             contenyType = "application/octet-stream";
 
         return File(fileBytes, contenyType, Path.GetFileName(pathToFile));

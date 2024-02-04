@@ -16,6 +16,8 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Register")]
     public async Task<IActionResult> RegisterAsync(RegisterModel registerModel)
     {
@@ -30,6 +32,8 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Login")]
     public async Task<IActionResult> GetTokenAsync(TokenRequestModel tokenRequest)
     {
@@ -44,6 +48,7 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpPost("Logout")]
     public async Task<IActionResult> LogoutAsync()
     {

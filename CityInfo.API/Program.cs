@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -92,6 +93,24 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
+            options.SwaggerDoc("CityInfoOpenApiSpecification", new OpenApiInfo()
+            {
+                Title = "CityInfoApi",
+                Version = "1.0",
+                Description = "Simple web api for cities with related points of interests.",
+                Contact = new OpenApiContact()
+                {
+                    Name = "Mohamed ElHelaly",
+                    Email = "me5260287@gmail.com",
+                    Url = new Uri("https://github.com/NetNinjaEngineer")
+                },
+                License = new OpenApiLicense()
+                {
+                    Name = "MIT LICENSE",
+                    Url = new Uri("https://opensource.org/licenses/MIT")
+                }
+            });
+
             options.AddSecurityDefinition("CityInfoApiBearerAuth", new OpenApiSecurityScheme()
             {
                 Type = SecuritySchemeType.Http,
@@ -113,6 +132,10 @@ public class Program
                     new List<string>()
                 }
             });
+
+            var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var fullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+            options.IncludeXmlComments(fullPath);
         });
 
         builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
@@ -172,7 +195,8 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecification/swagger.json", "CityInfo.Api"));
         }
         else
             app.UseExceptionHandler(appBuilder =>
