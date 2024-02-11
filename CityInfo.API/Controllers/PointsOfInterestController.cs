@@ -3,7 +3,6 @@ using CityInfo.API.Contracts;
 using CityInfo.API.DataTransferObjects.PointOfInterest;
 using CityInfo.API.Models;
 using CityInfo.API.RequestFeatures;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -11,7 +10,6 @@ using System.Text.Json;
 namespace CityInfo.API.Controllers;
 [Route("api/cities/{cityId}/pointsofinterest")]
 [ApiController]
-[Authorize(Policy = "RequireAdmin")]
 public class PointsOfInterestController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;

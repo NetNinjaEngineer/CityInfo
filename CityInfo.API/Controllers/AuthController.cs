@@ -19,7 +19,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Register")]
-    public async Task<IActionResult> RegisterAsync(RegisterModel registerModel)
+    public async Task<ActionResult<AuthModel>> RegisterAsync(RegisterModel registerModel)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -35,7 +35,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Login")]
-    public async Task<IActionResult> GetTokenAsync(TokenRequestModel tokenRequest)
+    public async Task<ActionResult<AuthModel>> GetTokenAsync(TokenRequestModel tokenRequest)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
