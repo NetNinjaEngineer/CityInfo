@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using CityInfo.API.ActionFilters;
 using CityInfo.API.Authorization.Handlers;
 using CityInfo.API.Contracts;
@@ -93,29 +94,11 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("CityInfoOpenApiSpecificationCities", new OpenApiInfo()
+            options.SwaggerDoc("CityInfoOpenApiSpecification", new OpenApiInfo()
             {
-                Title = "CityInfoApi (Cities)",
+                Title = "CityInfoApi",
                 Version = "1.0",
-                Description = "Through this api you can access cities",
-                Contact = new OpenApiContact()
-                {
-                    Name = "Mohamed ElHelaly",
-                    Email = "me5260287@gmail.com",
-                    Url = new Uri("https://github.com/NetNinjaEngineer")
-                },
-                License = new OpenApiLicense()
-                {
-                    Name = "MIT LICENSE",
-                    Url = new Uri("https://opensource.org/licenses/MIT")
-                }
-            });
-
-            options.SwaggerDoc("CityInfoOpenApiSpecificationPointsOfInterest", new OpenApiInfo()
-            {
-                Title = "CityInfoApi (PointsOfInterest)",
-                Version = "1.0",
-                Description = "Through this api you can access PointsOfInterest",
+                Description = "Through this api you can access cities and pointsofinterest",
                 Contact = new OpenApiContact()
                 {
                     Name = "Mohamed ElHelaly",
@@ -179,6 +162,13 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<SeedRolesService>();
 
+        builder.Services.AddApiVersioning(options =>
+        {
+            options.AssumeDefaultVersionWhenUnspecified = true;
+            options.DefaultApiVersion = new ApiVersion(1, 0);
+            options.ReportApiVersions = true;
+        });
+
         builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddAuthentication(options =>
@@ -215,9 +205,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecificationCities/swagger.json", "CityInfoApi (Cities)");
-                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecificationPointsOfInterest/swagger.json", "CityInfoApi (PointsOfInterest)");
-
+                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecification/swagger.json", "CityInfoApi");
             });
         }
         else

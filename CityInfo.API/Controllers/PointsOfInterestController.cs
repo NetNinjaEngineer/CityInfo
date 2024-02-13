@@ -6,9 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CityInfo.API.Controllers;
-[Route("api/cities/{cityId}/pointsofinterest")]
+[Route("api/v{version:apiVersion}/cities/{cityId}/pointsofinterest")]
 [ApiController]
-[ApiExplorerSettings(GroupName = "CityInfoOpenApiSpecificationPointsOfInterest")]
 public class PointsOfInterestController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;

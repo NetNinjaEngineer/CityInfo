@@ -9,11 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CityInfo.API.Controllers;
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [TypeFilter<SampleExceptionFilter>]
 [Authorize(Policy = "RequireUser")]
-[ApiExplorerSettings(GroupName = "CityInfoOpenApiSpecificationCities")]
 public class CitiesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
