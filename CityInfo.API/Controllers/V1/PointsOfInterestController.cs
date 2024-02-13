@@ -24,7 +24,6 @@ public class PointsOfInterestController : ControllerBase
         _mapper = mapper;
     }
 
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(PointOfInterestDto), StatusCodes.Status200OK)]
     [HttpGet(Name = "GetPointsOfInterest")]
@@ -72,7 +71,6 @@ public class PointsOfInterestController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [HttpPost(Name = nameof(CreatePointOfInterest))]
     public async Task<IActionResult> CreatePointOfInterest(int cityId,
@@ -128,7 +126,6 @@ public class PointsOfInterestController : ControllerBase
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPatch("{pointOfInterestId}")]
     public async Task<IActionResult> PartiallyUpdatePointOfInterest(int cityId, int pointOfInterestId,
         JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)

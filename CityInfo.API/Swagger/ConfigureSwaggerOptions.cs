@@ -14,7 +14,7 @@ public class ConfigureSwaggerOptions
     {
         foreach (var description in _provider.ApiVersionDescriptions)
         {
-            options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
+            options.SwaggerDoc($"{description.GroupName}", CreateInfoForApiVersion(description));
         }
     }
 
@@ -23,7 +23,7 @@ public class ConfigureSwaggerOptions
         var info = new OpenApiInfo()
         {
             Title = "CityInfoApi",
-            Version = "1.0",
+            Version = description.ApiVersion.ToString(),
             Description = "Through this api you can access cities and pointsofinterest",
             Contact = new OpenApiContact()
             {

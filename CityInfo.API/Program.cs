@@ -46,6 +46,9 @@ public class Program
             options.ReturnHttpNotAcceptable = true;
 
             options.Filters.Add(new AuthorizeFilter());
+            options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
+            options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
+            options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
 
             options.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile
             {

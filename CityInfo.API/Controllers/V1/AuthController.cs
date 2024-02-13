@@ -1,9 +1,11 @@
-﻿using CityInfo.API.Contracts;
+﻿using Asp.Versioning;
+using CityInfo.API.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.API.Controllers.V1;
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [AllowAnonymous]
 public class AuthController : ControllerBase
@@ -16,7 +18,6 @@ public class AuthController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Register")]
     public async Task<ActionResult<AuthModel>> RegisterAsync(RegisterModel registerModel)
     {
@@ -32,7 +33,6 @@ public class AuthController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [HttpPost("Login")]
     public async Task<ActionResult<AuthModel>> GetTokenAsync(TokenRequestModel tokenRequest)
     {

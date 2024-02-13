@@ -67,7 +67,6 @@ public class CitiesController : ControllerBase
         return Ok(linkedResourceWithSelfLink);
     }
 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ResponseCache(Duration = 120)]
     [HttpPost(Name = "CreateCity")]
@@ -97,7 +96,6 @@ public class CitiesController : ControllerBase
 
     [ProducesResponseType(typeof(City), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ResponseCache(Duration = 120)]
     [HttpGet("{cityId}", Name = "GetCity")]
     public async Task<IActionResult> GetCityAsync(int cityId, string? fields)
@@ -148,7 +146,6 @@ public class CitiesController : ControllerBase
         return NoContent();
     }
 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ResponseCache(Duration = 120)]
     [HttpGet]
