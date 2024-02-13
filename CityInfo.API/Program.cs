@@ -1,4 +1,5 @@
 using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using CityInfo.API.ActionFilters;
 using CityInfo.API.Authorization.Handlers;
 using CityInfo.API.Contracts;
@@ -92,52 +93,6 @@ public class Program
 
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("CityInfoOpenApiSpecification", new OpenApiInfo()
-            {
-                Title = "CityInfoApi",
-                Version = "1.0",
-                Description = "Through this api you can access cities and pointsofinterest",
-                Contact = new OpenApiContact()
-                {
-                    Name = "Mohamed ElHelaly",
-                    Email = "me5260287@gmail.com",
-                    Url = new Uri("https://github.com/NetNinjaEngineer")
-                },
-                License = new OpenApiLicense()
-                {
-                    Name = "MIT LICENSE",
-                    Url = new Uri("https://opensource.org/licenses/MIT")
-                }
-            });
-
-            options.AddSecurityDefinition("CityInfoApiBearerAuth", new OpenApiSecurityScheme()
-            {
-                Type = SecuritySchemeType.Http,
-                Scheme = "Bearer",
-                Description = "Input a valid token to access this API"
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "CityInfoApiBearerAuth"
-                        }
-                    },
-                    new List<string>()
-                }
-            });
-
-            var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var fullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
-            options.IncludeXmlComments(fullPath);
-        });
 
         builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
         var connectionString = builder.Configuration.GetSection("ConnectionStrings:DefaultConnection").Value;
@@ -162,13 +117,22 @@ public class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<SeedRolesService>();
 
-        builder.Services.AddApiVersioning(options =>
+        var apiVersioningBuilder = builder.Services.AddApiVersioning(options =>
         {
             options.AssumeDefaultVersionWhenUnspecified = true;
             options.DefaultApiVersion = new ApiVersion(1, 0);
             options.ReportApiVersions = true;
-        })
-            .AddApiExplorer(options => options.GroupNameFormat = "'v'VV");
+            options.ApiVersionReader = ApiVersionReader.Combine(
+                new QueryStringApiVersionReader("api-version"),
+                new HeaderApiVersionReader("X-Version"),
+                new MediaTypeApiVersionReader("ver"));
+        });
+
+        apiVersioningBuilder.AddApiExplorer(options =>
+        {
+            options.GroupNameFormat = "'v'VVV";
+            options.SubstituteApiVersionInUrl = true;
+        });
 
         builder.Services.AddHttpContextAccessor();
 
@@ -189,7 +153,7 @@ public class Program
                     ValidIssuer = builder.Configuration["JwtSettings:ValidIssuer"],
                     ValidAudience = builder.Configuration["JwtSettings:ValidAudience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+                        Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]!))
                 };
             });
 
@@ -199,14 +163,76 @@ public class Program
             .AddPolicy("RequireUser", policy =>
                 policy.RequireRole("User"));
 
+        var apiVersionDescriptionProvider = builder.Services.BuildServiceProvider()
+            .GetRequiredService<IApiVersionDescriptionProvider>();
+
+        builder.Services.AddSwaggerGen(options =>
+        {
+            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+            {
+                options.SwaggerDoc($"CityInfoOpenApiSpecification{description.GroupName}", new OpenApiInfo()
+                {
+                    Title = "CityInfoApi",
+                    Version = description.ApiVersion.ToString(),
+                    Description = "Through this api you can access cities and pointsofinterest",
+                    Contact = new OpenApiContact()
+                    {
+                        Name = "Mohamed ElHelaly",
+                        Email = "me5260287@gmail.com",
+                        Url = new Uri("https://github.com/NetNinjaEngineer")
+                    },
+                    License = new OpenApiLicense()
+                    {
+                        Name = "MIT LICENSE",
+                        Url = new Uri("https://opensource.org/licenses/MIT")
+                    }
+                });
+            }
+
+            options.AddSecurityDefinition("CityInfoApiBearerAuth", new OpenApiSecurityScheme()
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                Description = "Input a valid token to access this API"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "CityInfoApiBearerAuth"
+                        }
+                    },
+                    new List<string>()
+                }
+            });
+
+            options.DocInclusionPredicate((documentName, apiDescription) =>
+            {
+
+            });
+
+            var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var fullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+            options.IncludeXmlComments(fullPath);
+        });
+
         var app = builder.Build();
+
+        var apiVersionprovider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecification/swagger.json", "CityInfoApi");
+                foreach (var description in apiVersionprovider.ApiVersionDescriptions)
+                    options.SwaggerEndpoint($"/swagger/CityInfoOpenApiSpecification{description.GroupName}/swagger.json",
+                        $"{description.GroupName.ToUpperInvariant()}");
             });
         }
         else
