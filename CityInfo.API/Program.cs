@@ -93,11 +93,29 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("CityInfoOpenApiSpecification", new OpenApiInfo()
+            options.SwaggerDoc("CityInfoOpenApiSpecificationCities", new OpenApiInfo()
             {
-                Title = "CityInfoApi",
+                Title = "CityInfoApi (Cities)",
                 Version = "1.0",
-                Description = "Simple web api for cities with related points of interests.",
+                Description = "Through this api you can access cities",
+                Contact = new OpenApiContact()
+                {
+                    Name = "Mohamed ElHelaly",
+                    Email = "me5260287@gmail.com",
+                    Url = new Uri("https://github.com/NetNinjaEngineer")
+                },
+                License = new OpenApiLicense()
+                {
+                    Name = "MIT LICENSE",
+                    Url = new Uri("https://opensource.org/licenses/MIT")
+                }
+            });
+
+            options.SwaggerDoc("CityInfoOpenApiSpecificationPointsOfInterest", new OpenApiInfo()
+            {
+                Title = "CityInfoApi (PointsOfInterest)",
+                Version = "1.0",
+                Description = "Through this api you can access PointsOfInterest",
                 Contact = new OpenApiContact()
                 {
                     Name = "Mohamed ElHelaly",
@@ -196,7 +214,11 @@ public class Program
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
-                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecification/swagger.json", "CityInfo.Api"));
+            {
+                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecificationCities/swagger.json", "CityInfoApi (Cities)");
+                options.SwaggerEndpoint("/swagger/CityInfoOpenApiSpecificationPointsOfInterest/swagger.json", "CityInfoApi (PointsOfInterest)");
+
+            });
         }
         else
             app.UseExceptionHandler(appBuilder =>

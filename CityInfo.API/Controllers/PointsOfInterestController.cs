@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
 using CityInfo.API.Contracts;
-using CityInfo.API.DataTransferObjects.PointOfInterest;
-using CityInfo.API.Models;
 using CityInfo.API.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +8,7 @@ using System.Text.Json;
 namespace CityInfo.API.Controllers;
 [Route("api/cities/{cityId}/pointsofinterest")]
 [ApiController]
+[ApiExplorerSettings(GroupName = "CityInfoOpenApiSpecificationPointsOfInterest")]
 public class PointsOfInterestController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;

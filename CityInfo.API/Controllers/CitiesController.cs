@@ -1,10 +1,8 @@
 ﻿using AutoMapper;
 using CityInfo.API.ActionFilters;
 using CityInfo.API.Contracts;
-using CityInfo.API.DataTransferObjects.City;
 using CityInfo.API.DataTransferObjects.Link;
 using CityInfo.API.Helpers;
-using CityInfo.API.Models;
 using CityInfo.API.RequestFeatures;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +13,7 @@ namespace CityInfo.API.Controllers;
 [ApiController]
 [TypeFilter<SampleExceptionFilter>]
 [Authorize(Policy = "RequireUser")]
+[ApiExplorerSettings(GroupName = "CityInfoOpenApiSpecificationCities")]
 public class CitiesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
