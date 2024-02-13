@@ -167,7 +167,8 @@ public class Program
             options.AssumeDefaultVersionWhenUnspecified = true;
             options.DefaultApiVersion = new ApiVersion(1, 0);
             options.ReportApiVersions = true;
-        });
+        })
+            .AddApiExplorer(options => options.GroupNameFormat = "'v'VV");
 
         builder.Services.AddHttpContextAccessor();
 

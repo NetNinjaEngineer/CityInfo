@@ -40,7 +40,7 @@ public class CitiesV2Controller : ControllerBase
         return Ok(linkedResourceWithSelfLink);
     }
 
-    private IEnumerable<LinkDto> CreateLinksForCity(int cityId)
+    private List<LinkDto> CreateLinksForCity(int cityId)
     {
         var cityLinks = new List<LinkDto>();
         cityLinks.AddRange([
