@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using CityInfo.API.ActionFilters;
 using CityInfo.API.Contracts;
 using CityInfo.API.DataTransferObjects.Link;
@@ -8,7 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
-namespace CityInfo.API.Controllers;
+namespace CityInfo.API.Controllers.V1;
+[ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [TypeFilter<SampleExceptionFilter>]
@@ -43,7 +45,6 @@ public class CitiesController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(City))]
-    //[ResponseCache(Duration = 120)]
     [HttpGet(Name = "GetCitiesAsync")]
     [HttpHead]
     public async Task<IActionResult> GetCitiesAsync(string? fields)
@@ -159,7 +160,7 @@ public class CitiesController : ControllerBase
 
         var pagedResult = _unitOfWork.CityRepository.GetCities(cityRequestParameters);
 
-        pagedResult.MetaData.Fields = (string.IsNullOrEmpty(cityRequestParameters.Fields)) ? null : cityRequestParameters.Fields;
+        pagedResult.MetaData.Fields = string.IsNullOrEmpty(cityRequestParameters.Fields) ? null : cityRequestParameters.Fields;
 
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(pagedResult.MetaData));
 

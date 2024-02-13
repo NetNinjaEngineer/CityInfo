@@ -1,11 +1,13 @@
-﻿using AutoMapper;
+﻿using Asp.Versioning;
+using AutoMapper;
 using CityInfo.API.Contracts;
 using CityInfo.API.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
-namespace CityInfo.API.Controllers;
+namespace CityInfo.API.Controllers.V1;
+[ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/cities/{cityId}/pointsofinterest")]
 [ApiController]
 public class PointsOfInterestController : ControllerBase

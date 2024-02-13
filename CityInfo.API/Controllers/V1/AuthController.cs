@@ -1,9 +1,8 @@
 ﻿using CityInfo.API.Contracts;
-using CityInfo.API.DataTransferObjects.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CityInfo.API.Controllers;
+namespace CityInfo.API.Controllers.V1;
 [Route("api/[controller]")]
 [ApiController]
 [AllowAnonymous]

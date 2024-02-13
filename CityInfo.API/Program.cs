@@ -1,5 +1,4 @@
 using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using CityInfo.API.ActionFilters;
 using CityInfo.API.Authorization.Handlers;
 using CityInfo.API.Contracts;
@@ -8,6 +7,7 @@ using CityInfo.API.Models;
 using CityInfo.API.Repository;
 using CityInfo.API.Repository.Implementors;
 using CityInfo.API.Services;
+using CityInfo.API.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -116,16 +116,16 @@ public class Program
         builder.Services.AddSingleton<IAuthorizationHandler, CityAuthorizationCrudHandler>();
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<SeedRolesService>();
+        builder.Services.AddTransient<ConfigureSwaggerOptions>();
 
         var apiVersioningBuilder = builder.Services.AddApiVersioning(options =>
         {
             options.AssumeDefaultVersionWhenUnspecified = true;
             options.DefaultApiVersion = new ApiVersion(1, 0);
             options.ReportApiVersions = true;
-            options.ApiVersionReader = ApiVersionReader.Combine(
-                new QueryStringApiVersionReader("api-version"),
-                new HeaderApiVersionReader("X-Version"),
-                new MediaTypeApiVersionReader("ver"));
+            //options.ApiVersionReader = ApiVersionReader.Combine(
+            //    new QueryStringApiVersionReader("api-version"),
+            //    new HeaderApiVersionReader("X-Version"));
         });
 
         apiVersioningBuilder.AddApiExplorer(options =>
@@ -163,31 +163,13 @@ public class Program
             .AddPolicy("RequireUser", policy =>
                 policy.RequireRole("User"));
 
-        var apiVersionDescriptionProvider = builder.Services.BuildServiceProvider()
-            .GetRequiredService<IApiVersionDescriptionProvider>();
+        var configureSwaggerOptionsService = builder.Services.BuildServiceProvider()
+            .GetRequiredService<ConfigureSwaggerOptions>();
 
         builder.Services.AddSwaggerGen(options =>
         {
-            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
-            {
-                options.SwaggerDoc($"CityInfoOpenApiSpecification{description.GroupName}", new OpenApiInfo()
-                {
-                    Title = "CityInfoApi",
-                    Version = description.ApiVersion.ToString(),
-                    Description = "Through this api you can access cities and pointsofinterest",
-                    Contact = new OpenApiContact()
-                    {
-                        Name = "Mohamed ElHelaly",
-                        Email = "me5260287@gmail.com",
-                        Url = new Uri("https://github.com/NetNinjaEngineer")
-                    },
-                    License = new OpenApiLicense()
-                    {
-                        Name = "MIT LICENSE",
-                        Url = new Uri("https://opensource.org/licenses/MIT")
-                    }
-                });
-            }
+            configureSwaggerOptionsService.Configure(options);
+            options.OperationFilter<SwaggerDefaultValues>();
 
             options.AddSecurityDefinition("CityInfoApiBearerAuth", new OpenApiSecurityScheme()
             {
@@ -211,28 +193,28 @@ public class Program
                 }
             });
 
-            options.DocInclusionPredicate((documentName, apiDescription) =>
-            {
-
-            });
-
             var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var fullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
             options.IncludeXmlComments(fullPath);
+
         });
 
         var app = builder.Build();
-
-        var apiVersionprovider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
 
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                foreach (var description in apiVersionprovider.ApiVersionDescriptions)
-                    options.SwaggerEndpoint($"/swagger/CityInfoOpenApiSpecification{description.GroupName}/swagger.json",
-                        $"{description.GroupName.ToUpperInvariant()}");
+                var descriptions = app.DescribeApiVersions();
+
+                // Build a swagger endpoint for each discovered API version
+                foreach (var description in descriptions)
+                {
+                    var url = $"/swagger/{description.GroupName}/swagger.json";
+                    var name = description.GroupName.ToUpperInvariant();
+                    options.SwaggerEndpoint(url, name);
+                }
             });
         }
         else
