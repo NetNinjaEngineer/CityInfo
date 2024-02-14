@@ -47,52 +47,53 @@ public class Program
 
             options.Filters.Add(new AuthorizeFilter());
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
-            options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
+            //options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
 
             options.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile
             {
                 Duration = 240
             });
+
         })
+            .AddXmlDataContractSerializerFormatters()
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
-            .AddXmlDataContractSerializerFormatters()
-            .ConfigureApiBehaviorOptions(setupAction =>
+        .ConfigureApiBehaviorOptions(setupAction =>
+        {
+            setupAction.InvalidModelStateResponseFactory = context =>
             {
-                setupAction.InvalidModelStateResponseFactory = context =>
+                var problemDetailsFactory = context.HttpContext.RequestServices
+                .GetRequiredService<ProblemDetailsFactory>();
+
+                var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext,
+                    context.ModelState);
+
+                validationProblemDetails.Detail = "See the errors field for details";
+                validationProblemDetails.Instance = context.HttpContext.Request.Path;
+
+                var actionExecutingContext = context as ActionExecutingContext;
+                if ((context.ModelState.ErrorCount > 0)
+                    && (actionExecutingContext?.ActionArguments.Count ==
+                    context.ActionDescriptor.Parameters.Count))
                 {
-                    var problemDetailsFactory = context.HttpContext.RequestServices
-                    .GetRequiredService<ProblemDetailsFactory>();
+                    validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                    validationProblemDetails.Title = "One or more validation errors occurred";
 
-                    var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext,
-                        context.ModelState);
-
-                    validationProblemDetails.Detail = "See the errors field for details";
-                    validationProblemDetails.Instance = context.HttpContext.Request.Path;
-
-                    var actionExecutingContext = context as ActionExecutingContext;
-                    if ((context.ModelState.ErrorCount > 0)
-                        && (actionExecutingContext?.ActionArguments.Count ==
-                        context.ActionDescriptor.Parameters.Count))
-                    {
-                        validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
-                        validationProblemDetails.Title = "One or more validation errors occurred";
-
-                        return new UnprocessableEntityObjectResult(validationProblemDetails)
-                        {
-                            ContentTypes = { "application/problem+json" }
-                        };
-                    }
-
-                    validationProblemDetails.Status = StatusCodes.Status400BadRequest;
-                    validationProblemDetails.Title = "One or more error on input occurred";
-                    return new BadRequestObjectResult(validationProblemDetails)
+                    return new UnprocessableEntityObjectResult(validationProblemDetails)
                     {
                         ContentTypes = { "application/problem+json" }
                     };
+                }
+
+                validationProblemDetails.Status = StatusCodes.Status400BadRequest;
+                validationProblemDetails.Title = "One or more error on input occurred";
+                return new BadRequestObjectResult(validationProblemDetails)
+                {
+                    ContentTypes = { "application/problem+json" }
                 };
-            });
+            };
+        });
 
 
         builder.Services.AddEndpointsApiExplorer();
@@ -211,7 +212,6 @@ public class Program
             {
                 var descriptions = app.DescribeApiVersions();
 
-                // Build a swagger endpoint for each discovered API version
                 foreach (var description in descriptions)
                 {
                     var url = $"/swagger/{description.GroupName}/swagger.json";

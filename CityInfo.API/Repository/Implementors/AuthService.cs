@@ -1,5 +1,4 @@
 ﻿using CityInfo.API.Contracts;
-using CityInfo.API.DataTransferObjects.Auth;
 using CityInfo.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -40,6 +39,7 @@ public class AuthService : IAuthService
         authModelToReturn.IsAuthenticated = true;
         authModelToReturn.Roles = [.. userRoles];
         authModelToReturn.ExpiresOn = securityJwtToken.ValidTo;
+        authModelToReturn.Email = tokenRequestModel.Email;
         authModelToReturn.Token = new JwtSecurityTokenHandler().WriteToken(securityJwtToken);
 
         return authModelToReturn;

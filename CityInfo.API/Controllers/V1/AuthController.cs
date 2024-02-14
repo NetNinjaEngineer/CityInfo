@@ -8,6 +8,7 @@ namespace CityInfo.API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [AllowAnonymous]
+[Produces("application/json", "application/xml")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;

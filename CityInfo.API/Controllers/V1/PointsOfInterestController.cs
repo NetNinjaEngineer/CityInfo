@@ -1,15 +1,14 @@
 ﻿using Asp.Versioning;
 using AutoMapper;
 using CityInfo.API.Contracts;
-using CityInfo.API.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 
 namespace CityInfo.API.Controllers.V1;
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/cities/{cityId}/pointsofinterest")]
 [ApiController]
+[Produces("application/json", "application/xml")]
 public class PointsOfInterestController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -170,16 +169,6 @@ public class PointsOfInterestController : ControllerBase
         _unitOfWork.PointOfInterestRepository.DeletePointOfInterest(pointOfInterest);
         await _unitOfWork.SaveAsync();
         return NoContent();
-    }
-
-    [ProducesResponseType(typeof(PagedList<PointOfInterest>), StatusCodes.Status200OK)]
-    [HttpGet]
-    [Route("GetPointsOfInterestByParameters")]
-    public IActionResult GetPointsOfInterest([FromQuery] PointOfInterestRequestParameters parameters)
-    {
-        var pagedList = _unitOfWork.PointOfInterestRepository.GetPointsOfInterest(parameters);
-        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(pagedList.MetaData));
-        return Ok(pagedList);
     }
 
     private async Task<bool> CheckCityExists(int cityId)

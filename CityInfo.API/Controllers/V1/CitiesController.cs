@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CityInfo.API.Controllers.V1;
+[Produces("application/json", "application/xml")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
