@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using Serilog;
 using System.Reflection;
 using System.Text;
@@ -33,7 +34,7 @@ public class Program
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
-            .WriteTo.File("logs/cityinfo.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.File("Logs/cityinfo.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
         var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +48,7 @@ public class Program
 
             options.Filters.Add(new AuthorizeFilter());
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
-            //options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
+            options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
 
             options.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile
@@ -56,6 +57,8 @@ public class Program
             });
 
         })
+            .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
             .AddXmlDataContractSerializerFormatters()
             .AddJsonOptions(options =>
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)

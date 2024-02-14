@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
 namespace CityInfo.API.Controllers.V1;
-[Produces("application/json", "application/xml")]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [TypeFilter<SampleExceptionFilter>]
 [Authorize(Policy = "RequireUser")]
+[Produces("application/json")]
 public class CitiesController : ControllerBase
 {
     private readonly IUnitOfWork _unitOfWork;
@@ -69,7 +69,6 @@ public class CitiesController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ResponseCache(Duration = 120)]
     [HttpPost(Name = "CreateCity")]
     [ServiceFilter(typeof(ValidationFilterAttribute))]
     public async Task<IActionResult> CreateCityAsync([FromBody] CityForCreationDto requestModel)
@@ -120,7 +119,6 @@ public class CitiesController : ControllerBase
 
 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ResponseCache(Duration = 120)]
     [HttpPut("{cityId}", Name = "UpdateCity")]
     [ServiceFilter(typeof(CityExistsFilterAttribute), Order = 2)]
     [ServiceFilter(typeof(ValidationFilterAttribute), Order = 1)]
@@ -135,7 +133,6 @@ public class CitiesController : ControllerBase
     }
 
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ResponseCache(Duration = 120)]
     [HttpDelete("{cityId}", Name = "DeleteCity")]
     [ServiceFilter(typeof(CityExistsFilterAttribute))]
     public async Task<IActionResult> DeleteCityAsync(int cityId)
@@ -197,42 +194,36 @@ public class CitiesController : ControllerBase
     private string CreateCitiesResourceUri(CityRequestParameters cityRequestParameters,
         ResourceUriType resourceUriType)
     {
-        switch (resourceUriType)
+        return resourceUriType switch
         {
-            case ResourceUriType.PreviousPage:
-                return Url.Link("GetCitiesAsync", new
-                {
-                    fields = cityRequestParameters.Fields,
-                    pageNumber = cityRequestParameters.PageNumber - 1,
-                    pageSize = cityRequestParameters.PageSize,
-                    searchTerm = cityRequestParameters.SearchTerm,
-                    filterTerm = cityRequestParameters.FilterTerm
-                })!;
-
-            case ResourceUriType.NextPage:
-                return Url.Link("GetCitiesAsync", new
-                {
-                    fields = cityRequestParameters.Fields,
-                    pageNumber = cityRequestParameters.PageNumber + 1,
-                    pageSize = cityRequestParameters.PageSize,
-                    searchTerm = cityRequestParameters.SearchTerm,
-                    filterTerm = cityRequestParameters.FilterTerm
-                })!;
-
-            case ResourceUriType.Current:
-            default:
-                return Url.Link("GetCitiesAsync", new
-                {
-                    fields = cityRequestParameters.Fields,
-                    pageNumber = cityRequestParameters.PageNumber,
-                    pageSize = cityRequestParameters.PageSize,
-                    searchTerm = cityRequestParameters.SearchTerm,
-                    filterTerm = cityRequestParameters.FilterTerm
-                })!;
-        }
+            ResourceUriType.PreviousPage => Url.Link("GetCitiesAsync", new
+            {
+                fields = cityRequestParameters.Fields,
+                pageNumber = cityRequestParameters.PageNumber - 1,
+                pageSize = cityRequestParameters.PageSize,
+                searchTerm = cityRequestParameters.SearchTerm,
+                filterTerm = cityRequestParameters.FilterTerm
+            })!,
+            ResourceUriType.NextPage => Url.Link("GetCitiesAsync", new
+            {
+                fields = cityRequestParameters.Fields,
+                pageNumber = cityRequestParameters.PageNumber + 1,
+                pageSize = cityRequestParameters.PageSize,
+                searchTerm = cityRequestParameters.SearchTerm,
+                filterTerm = cityRequestParameters.FilterTerm
+            })!,
+            _ => Url.Link("GetCitiesAsync", new
+            {
+                fields = cityRequestParameters.Fields,
+                pageNumber = cityRequestParameters.PageNumber,
+                pageSize = cityRequestParameters.PageSize,
+                searchTerm = cityRequestParameters.SearchTerm,
+                filterTerm = cityRequestParameters.FilterTerm
+            })!,
+        };
     }
 
-    private IEnumerable<LinkDto> CreateLinksForCity(int cityId, string fields)
+    private List<LinkDto> CreateLinksForCity(int cityId, string fields)
     {
         var cityLinks = new List<LinkDto>();
         if (string.IsNullOrWhiteSpace(fields))
@@ -287,7 +278,7 @@ public class CitiesController : ControllerBase
 
     }
 
-    private IEnumerable<LinkDto> CreateLinksForCity(int cityId)
+    private List<LinkDto> CreateLinksForCity(int cityId)
     {
         var cityLinks = new List<LinkDto>();
         cityLinks.AddRange([
@@ -321,7 +312,7 @@ public class CitiesController : ControllerBase
 
     }
 
-    private IEnumerable<LinkDto> CreateLinksForCities(CityRequestParameters cityRequestParameters, bool hasPrevious, bool hasNext)
+    private List<LinkDto> CreateLinksForCities(CityRequestParameters cityRequestParameters, bool hasPrevious, bool hasNext)
     {
         var links = new List<LinkDto>
         {

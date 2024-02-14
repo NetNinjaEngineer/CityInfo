@@ -8,6 +8,7 @@ namespace CityInfo.API.Controllers.V2;
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/cities")]
 [ApiController]
+[Produces("application/json", "application/xml")]
 public class CitiesController : ControllerBase
 {
     private readonly IUnitOfWork unitOfWork;
