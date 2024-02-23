@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using CityInfo.API.Contracts;
+using CityInfo.API.DataTransferObjects.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

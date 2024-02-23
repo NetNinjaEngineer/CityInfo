@@ -2,6 +2,7 @@
 using CityInfo.API.Contracts;
 using CityInfo.API.DataTransferObjects.Link;
 using CityInfo.API.Helpers;
+using CityInfo.API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CityInfo.API.Controllers.V2;

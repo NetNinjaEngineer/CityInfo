@@ -20,10 +20,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Serilog;
 using System.Reflection;
 using System.Text;
-using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace CityInfo.API;
 
@@ -51,17 +52,24 @@ public class Program
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
             options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
 
-            options.CacheProfiles.Add("240SecondsCacheProfile", new CacheProfile
-            {
-                Duration = 240
-            });
+            options.CacheProfiles.Add("240SecondsCacheProfile",
+                new CacheProfile
+                {
+                    Duration = 240
+                });
 
         })
             .AddNewtonsoftJson(options =>
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore)
+            {
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                };
+            })
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase)
             .AddXmlDataContractSerializerFormatters()
-            .AddJsonOptions(options =>
-                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
         .ConfigureApiBehaviorOptions(setupAction =>
         {
             setupAction.InvalidModelStateResponseFactory = context =>
@@ -109,6 +117,8 @@ public class Program
         builder.Services.AddIdentity<AppUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+
+        builder.Services.AddCors();
 
         builder.Services.AddAutoMapper(typeof(Program).Assembly);
         builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -238,6 +248,12 @@ public class Program
             var seedRolesService = scope.ServiceProvider.GetRequiredService<SeedRolesService>();
             seedRolesService.SeedRoles().Wait();
         }
+
+        app.UseCors(options => options
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowAnyOrigin()
+        );
 
         app.UseHttpsRedirection();
 
