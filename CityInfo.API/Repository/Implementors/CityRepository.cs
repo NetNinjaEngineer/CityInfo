@@ -28,16 +28,18 @@ public class CityRepository : GenericRepository<City>, ICityRepository
         ArgumentNullException.ThrowIfNull(nameof(cityRequestParameters));
         var cities = GetCitiesAsync(true).Result.ToList();
 
-        if (!string.IsNullOrWhiteSpace(cityRequestParameters.FilterTerm) ||
-            !string.IsNullOrWhiteSpace(cityRequestParameters.SearchTerm))
+        if (!string.IsNullOrWhiteSpace(cityRequestParameters.FilterTerm))
         {
             var filterTerm = cityRequestParameters.FilterTerm?.Trim();
-            var searchTerm = cityRequestParameters.SearchTerm?.Trim();
+            cities = cities.Where(c => c.Name.Equals(filterTerm, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        }
 
+        if (!string.IsNullOrWhiteSpace(cityRequestParameters.SearchTerm))
+        {
+            var searchTerm = cityRequestParameters.SearchTerm?.Trim();
             cities = cities
-                .Where(c => c.Name!.Equals(filterTerm, StringComparison.CurrentCultureIgnoreCase) ||
+                .Where(c => c.Name!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase) ||
                 (
-                    c.Name!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase) ||
                     c.Country!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase)
                 )).ToList();
         }

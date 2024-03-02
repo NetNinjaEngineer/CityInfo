@@ -27,12 +27,11 @@ public static class IQueryableExtensions
             Expression sortExpressionBody;
             if (isDescending)
             {
-                sortExpressionBody = Expression.Call(typeof(Queryable), "OrderByDescending", new Type[] { type, lambdaExpression.ReturnType }, source.Expression, lambdaExpression);
+                sortExpressionBody = Expression.Call(typeof(Queryable), "OrderByDescending", [type, lambdaExpression.ReturnType], source.Expression, lambdaExpression);
             }
             else
             {
-                sortExpressionBody = Expression.Call(typeof(Queryable), "OrderBy", new Type[] { type, lambdaExpression.ReturnType }, source.Expression, lambdaExpression);
-
+                sortExpressionBody = Expression.Call(typeof(Queryable), "OrderBy", [type, lambdaExpression.ReturnType], source.Expression, lambdaExpression);
             }
 
             source = source.Provider.CreateQuery<TSource>(sortExpressionBody);
