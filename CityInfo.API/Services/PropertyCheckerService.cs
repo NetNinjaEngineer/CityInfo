@@ -5,9 +5,8 @@ namespace CityInfo.API.Services;
 
 public class PropertyCheckerService : IPropertyCheckerService
 {
-    public bool TypeHasProperties<T>(string fields)
+    public bool TypeHasProperties<T>(string? fields)
     {
-        ArgumentNullException.ThrowIfNull(fields);
         if (string.IsNullOrWhiteSpace(fields))
             return true;
         var fieldsAfterSplit = fields.Split(',');

@@ -12,4 +12,7 @@ public abstract class RequestParameters
     }
 
     public string? Fields { get; set; }
+
+    public string? Sort { get; set; }
+
 }

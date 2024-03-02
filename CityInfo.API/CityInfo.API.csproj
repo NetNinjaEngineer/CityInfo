@@ -42,6 +42,7 @@
 		<PackageReference Include="Serilog.sinks.console" Version="5.0.1" />
 		<PackageReference Include="Serilog.sinks.file" Version="5.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="system.linq.dynamic.core" Version="1.3.9" />
 	</ItemGroup>
 
 	<ItemGroup>

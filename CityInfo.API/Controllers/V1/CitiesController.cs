@@ -9,7 +9,6 @@ using CityInfo.API.Models;
 using CityInfo.API.RequestFeatures;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.CodeDom.Compiler;
 using System.Text.Json;
 
 namespace CityInfo.API.Controllers.V1;

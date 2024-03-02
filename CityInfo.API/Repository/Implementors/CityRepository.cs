@@ -27,13 +27,9 @@ public class CityRepository : GenericRepository<City>, ICityRepository
     {
         ArgumentNullException.ThrowIfNull(nameof(cityRequestParameters));
         var cities = GetCitiesAsync(true).Result.ToList();
-        if (string.IsNullOrEmpty(cityRequestParameters.SearchTerm)
-            && string.IsNullOrEmpty(cityRequestParameters.FilterTerm))
-            return PagedList<City>.ToPagedList(cities,
-                cityRequestParameters.PageNumber, cityRequestParameters.PageSize);
 
         if (!string.IsNullOrWhiteSpace(cityRequestParameters.FilterTerm) ||
-          !string.IsNullOrWhiteSpace(cityRequestParameters.SearchTerm))
+            !string.IsNullOrWhiteSpace(cityRequestParameters.SearchTerm))
         {
             var filterTerm = cityRequestParameters.FilterTerm?.Trim();
             var searchTerm = cityRequestParameters.SearchTerm?.Trim();
@@ -46,7 +42,9 @@ public class CityRepository : GenericRepository<City>, ICityRepository
                 )).ToList();
         }
 
-        return PagedList<City>.ToPagedList(cities,
+        var sortedCities = cities.AsQueryable().ApplySort(cityRequestParameters.Sort);
+
+        return PagedList<City>.ToPagedList(sortedCities.ToList(),
             cityRequestParameters.PageNumber,
             cityRequestParameters.PageSize);
     }
