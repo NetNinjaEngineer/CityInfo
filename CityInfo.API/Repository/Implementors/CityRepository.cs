@@ -19,34 +19,31 @@ public class CityRepository : GenericRepository<City>, ICityRepository
         => await FindAll(trackChanges, c => c.PointOfInterests).ToListAsync();
     public void UpdateCity(City city) => Update(city);
     public async Task<City> GetCityAsync(int cityId, bool trackChanges)
-        => await FindByCondition(c => c.Id == cityId, trackChanges,
-            c => c.PointOfInterests)
-        .FirstOrDefaultAsync();
+    => await FindByCondition(c => c.Id == cityId, trackChanges, c =>
+        c.PointOfInterests).FirstOrDefaultAsync();
 
     public PagedList<City> GetCities(CityRequestParameters cityRequestParameters)
     {
         ArgumentNullException.ThrowIfNull(nameof(cityRequestParameters));
-        var cities = GetCitiesAsync(true).Result.ToList();
+        var cities = GetCitiesAsync(true).Result.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(cityRequestParameters.FilterTerm))
         {
-            var filterTerm = cityRequestParameters.FilterTerm?.Trim();
-            cities = cities.Where(c => c.Name.Equals(filterTerm, StringComparison.CurrentCultureIgnoreCase)).ToList();
+            var filterTerm = cityRequestParameters.FilterTerm.Trim();
+            cities = cities.ApplyFilter(c => c.Name, filterTerm);
         }
 
         if (!string.IsNullOrWhiteSpace(cityRequestParameters.SearchTerm))
         {
             var searchTerm = cityRequestParameters.SearchTerm?.Trim();
-            cities = cities
-                .Where(c => c.Name!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase) ||
-                (
-                    c.Country!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase)
-                )).ToList();
+            cities = cities.Where(c => c.Name!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase) ||
+                c.Country!.Contains(searchTerm!, StringComparison.CurrentCultureIgnoreCase)
+            );
         }
 
-        var sortedCities = cities.AsQueryable().ApplySort(cityRequestParameters.Sort);
+        var sortedCities = cities.ApplySort(cityRequestParameters.Sort);
 
-        return PagedList<City>.ToPagedList(sortedCities.ToList(),
+        return PagedList<City>.ToPagedList([.. sortedCities],
             cityRequestParameters.PageNumber,
             cityRequestParameters.PageSize);
     }

@@ -53,7 +53,7 @@ public class CitiesController : ControllerBase
     [HttpHead]
     public async Task<IActionResult> GetCitiesAsync(string? fields)
     {
-        var cities = await _unitOfWork.CityRepository.GetCitiesAsync(trackChanges: true);
+        var cities = await _unitOfWork.CityRepository.GetCitiesAsync(true);
         var linkedResourceToReturn = cities.Select(city =>
         {
             var cityAsDictionary = city.ShapeObject(fields!) as IDictionary<string, object>;
